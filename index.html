@@ -27,7 +27,41 @@
           class="fab fa-github fa-3x"></i></a></div>
   </header>
   <div class="wrapper">
-    <div class="col">
+    <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <div class="btn-add" onclick="openAddNodeMenu()">Add</div>
+
+      <div id="add-node-menu">
+        <label for="nodeName">Node Name:</label>
+        <input type="text" id="nodeName" name="nodeName" required><br>
+
+        <label for="inputs">Inputs:</label>
+        <select id="addnodemenuinputs" name="inputs">
+        </select><br>
+
+        <label for="outputs">Outputs:</label>
+        <select id="addnodemenuoutputs" name="outputs">
+        </select><br>
+
+        <button onclick="createNode()">Create</button>
+        <button onclick="closeAddNodeMenu()">Close</button>
+      </div>
+
+      <div class="btn-export" onclick="Swal.fire({ title: 'Export',
+      html: '<pre><code>'+JSON.stringify(editor.export(), null,4)+'</code></pre>'
+      })">Export</div>
+      <div class="btn-clear" onclick="editor.clearModuleSelected()">Clear</div>
+      <div class="btn-lock">
+        <i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
+        <i id="unlock" class="fas fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');"
+          style="display:none;"></i>
+      </div>
+      <div class="bar-zoom">
+        <i class="fas fa-search-minus" onclick="editor.zoom_out()"></i>
+        <i class="fas fa-search" onclick="editor.zoom_reset()"></i>
+        <i class="fas fa-search-plus" onclick="editor.zoom_in()"></i>
+      </div>
+    </div>
+    <!-- <div class="col">
       <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="videomatrix">
         <span>Video Matrix</span>
       </div>
@@ -38,7 +72,7 @@
         <span>Audio Matrix</span>
       </div>
 
-    </div>
+    </div> -->
     <div class="col-right">
       <!-- <div class="menu">
         <ul>
@@ -46,23 +80,7 @@
           <li onclick="editor.changeModule('Other'); changeModule(event);">Other Module</li>
         </ul>
       </div> -->
-      <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
 
-        <div class="btn-export" onclick="Swal.fire({ title: 'Export',
-        html: '<pre><code>'+JSON.stringify(editor.export(), null,4)+'</code></pre>'
-        })">Export</div>
-        <div class="btn-clear" onclick="editor.clearModuleSelected()">Clear</div>
-        <div class="btn-lock">
-          <i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
-          <i id="unlock" class="fas fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');"
-            style="display:none;"></i>
-        </div>
-        <div class="bar-zoom">
-          <i class="fas fa-search-minus" onclick="editor.zoom_out()"></i>
-          <i class="fas fa-search" onclick="editor.zoom_reset()"></i>
-          <i class="fas fa-search-plus" onclick="editor.zoom_in()"></i>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -74,58 +92,7 @@
     editor.reroute_fix_curvature = true;
     editor.force_first_input = false;
     var currentNodeId = 0;
-
-    /*
-      editor.createCurvature = function(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
-        var center_x = ((end_pos_x - start_pos_x)/2)+start_pos_x;
-        return ' M ' + start_pos_x + ' ' + start_pos_y + ' L '+ center_x +' ' +  start_pos_y  + ' L ' + center_x + ' ' +  end_pos_y  + ' L ' + end_pos_x + ' ' + end_pos_y;
-      }*/
-
-
-
-
-
-    //const dataToImport =  {"drawflow": {"Home": {"data": ""}}}
     editor.start();
-    //editor.import(dataToImport);
-
-
-
-    /*
-      var welcome = `
-      <div>
-        <div class="title-box">👏 Welcome!!</div>
-        <div class="box">
-          <p>Simple flow library <b>demo</b>
-          <a href="https://github.com/jerosoler/Drawflow" target="_blank">Drawflow</a> by <b>Jero Soler</b></p><br>
-  
-          <p>Multiple input / outputs<br>
-             Data sync nodes<br>
-             Import / export<br>
-             Modules support<br>
-             Simple use<br>
-             Type: Fixed or Edit<br>
-             Events: view console<br>
-             Pure Javascript<br>
-          </p>
-          <br>
-          <p><b><u>Shortkeys:</u></b></p>
-          <p>🎹 <b>Delete</b> for remove selected<br>
-          💠 Mouse Left Click == Move<br>
-          ❌ Mouse Right == Delete Option<br>
-          🔍 Ctrl + Wheel == Zoom<br>
-          📱 Mobile support<br>
-          ...</p>
-        </div>
-      </div>
-      `;
-  */
-
-
-    //editor.addNode(name, "typenode": false,  inputs, outputs, posx, posy, class, data, html);
-    /*editor.addNode('welcome', 0, 0, 50, 50, 'welcome', {}, welcome );
-    editor.addModule('Other');
-    */
 
     // Events!
     editor.on('nodeCreated', function (id) {
@@ -193,6 +160,22 @@
       elements[i].addEventListener('touchstart', drag, false);
     }
 
+    var addNodeMenuInputsDropdown = document.getElementById("addnodemenuinputs");
+    for (var i = 1; i <= 100; i++) {
+      var option = document.createElement("option");
+      option.value = i;
+      option.text = i;
+      addNodeMenuInputsDropdown.add(option);
+    }
+
+    var addNodeMenuOutputsDropdown = document.getElementById("addnodemenuoutputs");
+    for (var i = 1; i <= 100; i++) {
+      var option = document.createElement("option");
+      option.value = i;
+      option.text = i;
+      addNodeMenuOutputsDropdown.add(option);
+    }
+
     var mobile_item_selec = '';
     var mobile_last_move = null;
     function positionMobile(ev) {
@@ -224,6 +207,20 @@
         addNodeToDrawFlow(data, ev.clientX, ev.clientY);
       }
 
+    }
+
+    function openAddNodeMenu() {
+      document.getElementById('add-node-menu').style.display = 'block';
+    }
+
+    // Function to close the popup
+    function closeAddNodeMenu() {
+      document.getElementById('add-node-menu').style.display = 'none';
+    }
+
+    function createNode() {
+      closeAddNodeMenu();
+      //addNodeToDrawFlow(name, 100, 100)
     }
 
     function addNodeToDrawFlow(name, pos_x, pos_y) {
