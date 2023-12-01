@@ -1309,6 +1309,137 @@ export default class Drawflow {
     return newNodeId;
   }
 
+  checkIfDeviceIdValid(deviceid) {
+    
+  }
+
+  // SPM - custom change to library to enable creation of nodes using unique device ids
+  addNodeByDeviceId (deviceid, name, num_in, num_out, ele_pos_x, ele_pos_y, classoverride, data, html, typenode = false) {
+    // if(!checkIfDeviceIdValid) {
+    //   return;
+    // }
+    var newNodeId = deviceid;
+
+    const parent = document.createElement('div');
+    parent.classList.add("parent-node");
+
+    const node = document.createElement('div');
+    node.innerHTML = "";
+    node.setAttribute("id", "node-"+newNodeId);
+    node.classList.add("drawflow-node");
+    if(classoverride != '') {
+      node.classList.add(...classoverride.split(' '));
+    }
+
+    const inputs = document.createElement('div');
+    inputs.classList.add("inputs");
+
+    const outputs = document.createElement('div');
+    outputs.classList.add("outputs");
+
+    const json_inputs = {}
+    for(var x = 0; x < num_in; x++) {
+      const input = document.createElement('div');
+      input.classList.add("input");
+      input.classList.add("input_"+(x+1));
+      json_inputs["input_"+(x+1)] = { "connections": []};
+      inputs.appendChild(input);
+    }
+
+    const json_outputs = {}
+    for(var x = 0; x < num_out; x++) {
+      const output = document.createElement('div');
+      output.classList.add("output");
+      output.classList.add("output_"+(x+1));
+      json_outputs["output_"+(x+1)] = { "connections": []};
+      outputs.appendChild(output);
+    }
+
+    const content = document.createElement('div');
+    content.classList.add("drawflow_content_node");
+    if(typenode === false) {
+      content.innerHTML = html;
+    } else if (typenode === true) {
+      content.appendChild(this.noderegister[html].html.cloneNode(true));
+    } else {
+      if(parseInt(this.render.version) === 3 ) {
+        //Vue 3
+        let wrapper = this.render.h(this.noderegister[html].html, this.noderegister[html].props, this.noderegister[html].options);
+        wrapper.appContext = this.parent;
+        this.render.render(wrapper,content);
+
+      } else {
+        // Vue 2
+        let wrapper = new this.render({
+          parent: this.parent,
+          render: h => h(this.noderegister[html].html, { props: this.noderegister[html].props }),
+          ...this.noderegister[html].options
+        }).$mount()
+        //
+        content.appendChild(wrapper.$el);
+      }
+    }
+
+    Object.entries(data).forEach(function (key, value) {
+      if(typeof key[1] === "object") {
+        insertObjectkeys(null, key[0], key[0]);
+      } else {
+        var elems = content.querySelectorAll('[df-'+key[0]+']');
+          for(var i = 0; i < elems.length; i++) {
+            elems[i].value = key[1];
+            if(elems[i].isContentEditable) {
+              elems[i].innerText = key[1];
+            }
+          }
+      }
+    })
+
+    function insertObjectkeys(object, name, completname) {
+      if(object === null) {
+        var object = data[name];
+      } else {
+        var object = object[name]
+      }
+      if(object !== null) {
+        Object.entries(object).forEach(function (key, value) {
+          if(typeof key[1] === "object") {
+            insertObjectkeys(object, key[0], completname+'-'+key[0]);
+          } else {
+            var elems = content.querySelectorAll('[df-'+completname+'-'+key[0]+']');
+              for(var i = 0; i < elems.length; i++) {
+                elems[i].value = key[1];
+                if(elems[i].isContentEditable) {
+                  elems[i].innerText = key[1];
+                }
+              }
+          }
+        });
+      }
+    }
+    node.appendChild(inputs);
+    node.appendChild(content);
+    node.appendChild(outputs);
+    node.style.top = ele_pos_y + "px";
+    node.style.left = ele_pos_x + "px";
+    parent.appendChild(node);
+    this.precanvas.appendChild(parent);
+    var json = {
+      id: newNodeId,
+      name: name,
+      data: data,
+      class: classoverride,
+      html: html,
+      typenode: typenode,
+      inputs: json_inputs,
+      outputs: json_outputs,
+      pos_x: ele_pos_x,
+      pos_y: ele_pos_y,
+    }
+    this.drawflow.drawflow[this.module].data[newNodeId] = json;
+    this.dispatch('nodeCreated', newNodeId);
+    return newNodeId;
+  }
+
   addNodeImport (dataNode, precanvas) {
     const parent = document.createElement('div');
     parent.classList.add("parent-node");

@@ -83,7 +83,7 @@ function createNode() {
         </div>
         `;
 
-    editor.addNode(newNodeNameText, selectedNumInputs, selectedNumOutputs, 100, 100, newNodeNameText, {}, defaultTemplate);
+    editor.addNodeByDeviceId(newNodeIdText, newNodeNameText, selectedNumInputs, selectedNumOutputs, 100, 100, newNodeNameText, {}, defaultTemplate);
     closeAddNodeMenu();
 }
 
