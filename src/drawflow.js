@@ -1310,15 +1310,29 @@ export default class Drawflow {
   }
 
   checkIfDeviceIdValid(deviceid) {
-    
+    var result = !this.drawflow.drawflow.Home.data.hasOwnProperty(deviceid);
+    console.log("DeviceId " + deviceid + " isValid = " + result);
+    return result;
   }
 
   // SPM - custom change to library to enable creation of nodes using unique device ids
-  addNodeByDeviceId (deviceid, name, num_in, num_out, ele_pos_x, ele_pos_y, classoverride, data, html, typenode = false) {
-    // if(!checkIfDeviceIdValid) {
-    //   return;
-    // }
+  addNodeByDeviceId (deviceid, name, num_in, num_out, ele_pos_x, ele_pos_y, classoverride, data, typenode = false) {
+    console.log('Attempting node creation with Device Id ' + deviceid);
+    if(!this.checkIfDeviceIdValid(deviceid)) {
+      deviceid = parseInt(deviceid) + 1;
+      console.log('Device Id already exists! New device id ' + deviceid);
+      this.addNodeByDeviceId (deviceid, name, num_in, num_out, ele_pos_x, ele_pos_y, classoverride, data, typenode = false);
+      return;
+    }
+    console.log('Device Id ' + deviceid + ' creating node');
     var newNodeId = deviceid;
+
+    var html = `
+        <div>
+          <div class="title-box">${name}</div>            
+          <div class="box">${deviceid}</div>
+        </div>
+        `;
 
     const parent = document.createElement('div');
     parent.classList.add("parent-node");

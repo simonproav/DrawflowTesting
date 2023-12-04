@@ -76,14 +76,7 @@ function createNode() {
 
     var newNodeIdText = document.getElementById("newNodeId").value;
 
-    var defaultTemplate = `
-        <div>
-          <div class="title-box">${newNodeNameText}</div>            
-          <div class="box">${newNodeIdText}</div>
-        </div>
-        `;
-
-    editor.addNodeByDeviceId(newNodeIdText, newNodeNameText, selectedNumInputs, selectedNumOutputs, 100, 100, newNodeNameText, {}, defaultTemplate);
+    editor.addNodeByDeviceId(newNodeIdText, newNodeNameText, selectedNumInputs, selectedNumOutputs, 100, 100, newNodeNameText, {});
     closeAddNodeMenu();
 }
 
