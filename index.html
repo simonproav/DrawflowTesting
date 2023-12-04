@@ -39,14 +39,24 @@
         <select id="addnodemenuoutputs" name="outputs">
         </select><br>
 
-        <button onclick="createNode()">Create</button>
+        <button onclick="createNode(10, 50)">Create</button>
         <button onclick="closeAddNodeMenu()">Close</button>
+      </div>
+
+      <div id="import-menu">
+        <input type="file" id="projectConfigInput" class="file-input" accept=".json" onchange="handleProjectConfigFile()">
+        <button onclick="openFileExplorer('projectConfigInput')">Project Config</button>
+        
+        <input type="file" id="routeTableInput" class="file-input" accept=".json" onchange="handleRouteTableFile()">
+        <button onclick="openFileExplorer('routeTableInput')">Route Table</button>
       </div>
 
       <div class="btn-export" onclick="Swal.fire({ title: 'Export',
       html: '<pre><code>'+JSON.stringify(editor.export(), null,4)+'</code></pre>'
       })">Export</div>
       <div class="btn-clear" onclick="editor.clearModuleSelected()">Clear</div>
+      <div class="btn-import" onclick="openImportMenu()">Import</div>
+      
       <div class="btn-lock">
         <i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
         <i id="unlock" class="fas fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');"
